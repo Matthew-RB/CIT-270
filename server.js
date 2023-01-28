@@ -8,17 +8,24 @@ const bodyParser = require("body-parser");
 
 const {v4: uuidv4} = require('uuid');
 
+const Redis = require('redis'); // the libary 
+
+const redisClient = Redis.createClient({url:"redis://127.0.0.1:6379"}); //this points to redis
+
 app.use(bodyParser.json()); //This looks for incoming data
+
+app.use(express.static('public'));
 
 app.get("/", (req, res) => {
     res.send("Hello Matthew");
 });
 
-app.post('/login', (req, res) =>{
+app.post('/login',async (req, res) =>{
     const loginUser = req.body.userName; //Access the username data
     const loginPassword = req.body.password; //Access the password data
     console.log('Login username:' +loginUser);
-    if (loginUser=="kill@gmail.com" && loginPassword=="Please@4"){
+    const correctPassword = await redisClient.hGet('UserMap',loginUser); //gets correct password from redis
+    if (correctPassword == loginPassword){
         const loginToken = uuidv4();
         res.send(loginToken);
     } else {
@@ -28,6 +35,7 @@ app.post('/login', (req, res) =>{
 });
 
 app.listen(port, () => {
+    redisClient.connect(); 
     console.log("listening");
 });
 
