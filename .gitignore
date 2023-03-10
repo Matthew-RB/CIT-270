@@ -106,3 +106,4 @@ dist
 server.cert
 server.key
 node_modules
+*.pem
