@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cit270matthewservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cit270matthewservice
+  template:
+    metadata:
+      name: cit270matthewservice
+      labels:
+        app: cit270matthewservice
+    spec:
+      containers:
+      - name: cit270matthewservice
+        image: gcr.io/cit-270-kubernetes-379820/matthew-api
+        volumeMounts:
+        - name: ssl
+          mountPath: "/etc/letsencrypt/live/matthewbrunson.cit270.com/"
+        command: ["npm"]
+        args: ["run", "start"]
+        resources: 
+          requests: 
+            cpu: 0.125
+            memory: 500Mi
+          limits:
+            cpu: 0.125
+            memory: 600Mi
+        imagePullPolicy: Always
+      volumes:
+      - name: ssl
+        secret: 
+          secretName: matthewcerts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stedi-matthewbrunson-nodeport
+spec:
+  selector:
+    app: cit270matthewservice
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: stedi-matthewbrunson-certificate
+spec:
+  domains:
+    - matthewbrunson.cit270.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stedi-matthewbrunson-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: cit270matthew
+    networking.gke.io/managed-certificates: stedi-matthewbrunson-certificate
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: stedi-matthewbrunson-nodeport
+            port:
+              number: 80

@@ -2,7 +2,9 @@ const express = require("express");
 
 const app = express();
 
-const port = 443;
+// const port = 443;
+const port = 3000;
+
 
 const bodyParser = require("body-parser");
 
@@ -10,7 +12,7 @@ const {v4: uuidv4} = require('uuid');
 
 const Redis = require('redis'); // the libary 
 
-const redisClient = Redis.createClient({url:"redis://127.0.0.1:6379"}); //this points to redis
+const redisClient = Redis.createClient({url:"redis://default:2rN63D5TMrzn9Jd4@redis-stedi-matthew:6379"}); //this points to redis
 
 const cookieParser = require("cookie-parser");
 
@@ -73,18 +75,18 @@ app.post('/login',async (req, res) =>{
     }
 });
 
-// app.listen(port, () => {
-//     redisClient.connect(); 
-//     console.log("listening");
-// });
-
-https.createServer({
-    key: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/cert.pem'),
-    ca: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/fullchain.pem')
-},
-app
-).listen(port, () => {
-    redisClient.connect();
-    console.log('Listening on port: '+ port);
+app.listen(port, () => {
+    redisClient.connect(); 
+    console.log("listening");
 });
+
+// https.createServer({
+//     key: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/privkey.pem'),
+//     cert: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/cert.pem'),
+//     ca: fs.readFileSync('/etc/letsencrypt/live/matthewbrunson.cit270.com/fullchain.pem')
+// },
+// app
+// ).listen(port, () => {
+//     redisClient.connect();
+//     console.log('Listening on port: '+ port);
+// });
